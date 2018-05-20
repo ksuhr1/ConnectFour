@@ -184,7 +184,8 @@ class HumanPlayer:
             move = int(input('Enter your move: '))
             
         return move
-                
+    #count_values checks the amount of #4's #3's #2's in a row
+    #for the entire board
     def count_values(self, board, num, player_num):
         #a.astype gives array of strings
       #  player_win_str = ''
@@ -237,7 +238,8 @@ class HumanPlayer:
             return value
 
         totalval = check_horizontal(board) + check_verticle(board) + check_diagonal(board)
-        print("Total count value: {}").format(totalval)
+        return(totalval)
+#        print("Total count value: {}").format(totalval)
        # print("Horizontal frequency: {}").format(check_horizontal(board))
        # print("Vertical frequency: {}").format(check_verticle(board))
        # print("Diagnol frequency: {}").format(check_diagonal(board))
@@ -252,8 +254,8 @@ class HumanPlayer:
     
     def evaluation_function(self, board):
         boardCopy = board
-        print("original boardCopy:")
-        print(boardCopy)
+ #       print("original boardCopy:")
+  #      print(boardCopy)
         utility_list =[]
         if(self.player_number == 2):
             rival = 1
@@ -261,26 +263,33 @@ class HumanPlayer:
             rival = 2
         for col in range(7):
        # for row in range(5,0, -1):
-            print("col:{} ").format(col)
+   #         print("col:{} ").format(col)
         #    for col in range(6):
             for row in range(5,0,-1):
-                print("row: {} ").format(row)
+    #            print("row: {} ").format(row)
+                #places an imaginary 1 or 2 wherever there is an open
+                #spot in the board
                 if boardCopy[row][col] == 0:
                     boardCopy[row][col] = self.player_number
-                    print("boardCopy:")
-                    print(boardCopy)
+#                    print("boardCopy:")
+#                    print(boardCopy)
+                    # self_count_values checks amount of values in a row for 
+                    #the entire board
                     utility_num = self.count_values(board,4,self.player_number)*1000
                     utility_num += self.count_values(board,3,self.player_number)*100
                     utility_num += self.count_values(board,2,self.player_number)*10
 
-
                     utility_num -=self.count_values(board,3, rival)*100
                     utility_num -=self.count_values(board,2, rival)*10
-                    utility_list.append(util
+                    utility_list.append(utility_num)
                     #replaces value you checked back to a 0
                     boardCopy[row][col] = 0
+
                  #   print(board)
                     break
+        print(self.player_number)
+        print(utility_list)
+
 
         #    self.count_values(board,i,1)
        # boardCopy = board
