@@ -6,7 +6,18 @@ class AIPlayer:
         self.type = 'ai'
         self.player_string = 'Player {}:ai'.format(player_number)
 
+
     def get_alpha_beta_move(self, board):
+        #alpha = np.inf
+        #beta = -np.inf
+
+        
+        #v = max_value(self,alpha,beta)
+        #return v
+        #count_value(self,board,2,self.player_number)
+
+   # def count_value(self, board, value,player_number):
+    #    print value
         """
         Given the current state of the board, return the next move based on
         the alpha-beta pruning algorithm
@@ -26,7 +37,29 @@ class AIPlayer:
         RETURNS:
         The 0 based index of the column that represents the next move
         """
-        raise NotImplementedError('Whoops I don\'t know what to do')
+    """Utility function defines the numeric value for a game that ends
+        in terminal state s for a player p
+        - Evaluation functions allow us to approzimate the true utility of a 
+          state without doing a complete search"""        
+        
+   # def max_value(state,alpha,beta):
+    #    v = -np.inf
+     #   for child in state:
+      #      v = max(v, value(child,alpha,beta))
+       #     if v >= beta:
+        #        return v
+         #   alpha = max(alpha,v)
+       # return v
+
+
+   # def min_value(state,alpha,beta):
+    #    v = np.inf
+     #   for child in state:
+      #      v = min(v, value(child, alpha,beta))
+       #     if v <= alpha:
+        #        return v
+         #   beta = min(beta,v)
+      #  return v
 
     def get_expectimax_move(self, board):
         """
@@ -56,7 +89,7 @@ class AIPlayer:
 
     def evaluation_function(self, board):
         """
-        Given the current stat of the board, return the scalar value that 
+        Given the current state of the board, return the scalar value that 
         represents the evaluation function for the current player
        
         INPUTS:
@@ -115,6 +148,8 @@ class HumanPlayer:
         self.type = 'human'
         self.player_string = 'Player {}:human'.format(player_number)
 
+
+
     def get_move(self, board):
         """
         Given the current board state returns the human input for next move
@@ -132,17 +167,122 @@ class HumanPlayer:
         RETURNS:
         The 0 based index of the column that represents the next move
         """
-
         valid_cols = []
         for i, col in enumerate(board.T):
             if 0 in col:
                 valid_cols.append(i)
-
+#        self.count_values(board,2,1)
+#        boardcopy = board
+ #       self.evaluation_function(boardcopy)
+        self.evaluation_function(board)
         move = int(input('Enter your move: '))
+         #self.evaluation_function(board)
+        # self.count_values(board, 2, 1)
 
         while move not in valid_cols:
             print('Column full, choose from:{}'.format(valid_cols))
             move = int(input('Enter your move: '))
-
+            
         return move
+                
+    def count_values(self, board, num, player_num):
+        #a.astype gives array of strings
+      #  player_win_str = ''
+        #to_str = lambda a: ''.join(a.astype(str))
 
+        #for _ in range(num):
+         #   player_win_str+='{0}'
+          #  print(player_win_str)
+
+        player_win_str = '{0}'*num
+
+        player_win_str = player_win_str.format(player_num)
+        to_str = lambda a: ''.join(a.astype(str))
+    
+	def check_horizontal(b):
+            value=0
+            for row in b:
+#                print(to_str(row))
+                if player_win_str in to_str(row):
+                    value+=to_str(row).count(player_win_str)
+                  #  print("You won")
+                  #  print("Number of two in a row: {} ").format(value)
+                  #print(to_str(row))
+            return value
+           # print("Number of twins in a row: {} ").format(value)
+            
+
+        def check_verticle(b):
+            return check_horizontal(b.T)
+             
+        def check_diagonal(b):
+            value = 0
+            for op in [None, np.fliplr]:
+                op_board = op(b) if op else b
+       	         
+                root_diag = np.diagonal(op_board, offset=0).astype(np.int)
+#                print("root_diag: {}").format(to_str(root_diag))
+                if player_win_str in to_str(root_diag):
+                    value+=to_str(root_diag).count(player_win_str)
+             #   print("Diagnol-1 values: {}").format(value)
+             
+                for i in range(1, b.shape[1]-3):
+                    for offset in [i, -i]:
+                        diag = np.diagonal(op_board, offset=offset)
+                        diag = to_str(diag.astype(np.int))
+#                        print("diag: {} ").format(diag)
+                        if player_win_str in diag:
+                           value+=diag.count(player_win_str)
+                        
+            return value
+
+        totalval = check_horizontal(board) + check_verticle(board) + check_diagonal(board)
+        print("Total count value: {}").format(totalval)
+       # print("Horizontal frequency: {}").format(check_horizontal(board))
+       # print("Vertical frequency: {}").format(check_verticle(board))
+       # print("Diagnol frequency: {}").format(check_diagonal(board))
+     #   checkh += check_verticle(board)
+      #  checkh += check_diagonal(board)
+
+      #  print(checkh)
+       # if (check_horizontal(board) or 
+        #        check_verticle(board) or
+         #       check_diagonal(board)): 
+          #          print("it won")
+    
+    def evaluation_function(self, board):
+        boardCopy = board
+        print("original boardCopy:")
+        print(boardCopy)
+        utility_list =[]
+        if(self.player_number == 2):
+            rival = 1
+        else:
+            rival = 2
+        for col in range(7):
+       # for row in range(5,0, -1):
+            print("col:{} ").format(col)
+        #    for col in range(6):
+            for row in range(5,0,-1):
+                print("row: {} ").format(row)
+                if boardCopy[row][col] == 0:
+                    boardCopy[row][col] = self.player_number
+                    print("boardCopy:")
+                    print(boardCopy)
+                    utility_num = self.count_values(board,4,self.player_number)*1000
+                    utility_num += self.count_values(board,3,self.player_number)*100
+                    utility_num += self.count_values(board,2,self.player_number)*10
+
+
+                    utility_num -=self.count_values(board,3, rival)*100
+                    utility_num -=self.count_values(board,2, rival)*10
+                    utility_list.append(util
+                    #replaces value you checked back to a 0
+                    boardCopy[row][col] = 0
+                 #   print(board)
+                    break
+
+        #    self.count_values(board,i,1)
+       # boardCopy = board
+       # print(boardCopy)
+        
