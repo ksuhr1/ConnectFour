@@ -7,15 +7,39 @@ class AIPlayer:
         self.player_string = 'Player {}:ai'.format(player_number)
 
 
+    #def minimax(self,board, depth):
+     #   if depth == 0:
+      #      return(self.evaluation_function(board))
+       # alpha = np.inf
+
+
     def get_alpha_beta_move(self, board):
 
         get_utility = self.evaluation_function(board)
         #return maximum utility value
-        maximum_val = max(get_utility)
-        maximum_index = get_utility.index(maximum_val)
-        return maximum_index
-
-
+#        maximum_val = max(get_utility)
+#        maximum_index = get_utility.index(maximum_val)
+#        print("maximum_index: {}").format(maximum_index)
+#        newBoard = board
+#        for col in range (7):
+#            for row in range(5,0,-1):
+#                if newBoard[row][col]==0:
+#                    newBoard[row][col] = maximum_index
+#        print("newBoard")
+#        print(newBoard)
+#        get_minutility = self.evaluation_function(newBoard)
+#        minimum_val = min(get_minutility)
+#        minimum_index = get_minutility.index(minimum_val)
+#        print("minimum_index:{}").format(minimum_index)
+        
+        return (maximum_index)
+        
+   # def minimax(board, depth):
+    #    if depth == 0:
+     #       print (self.evaluation_function(board))
+      #  alpha = np.inf
+       # print(alpha)
+       # return(maximum_index)
         #alpha = np.inf
         #beta = -np.inf
 
@@ -50,14 +74,14 @@ class AIPlayer:
         - Evaluation functions allow us to approzimate the true utility of a 
           state without doing a complete search"""        
         
-   # def max_value(state,alpha,beta):
-    #    v = -np.inf
-     #   for child in state:
-      #      v = max(v, value(child,alpha,beta))
-       #     if v >= beta:
-        #        return v
-         #   alpha = max(alpha,v)
-       # return v
+#    def max_value(state,alpha,beta):
+ #       v = -np.inf
+  #      for child in state:
+   #         v = max(v, value(child,alpha,beta))
+    #        if v >= beta:
+     #           return v
+      #      alpha = max(alpha,v)
+      #  return v
 
 
    # def min_value(state,alpha,beta):
@@ -67,7 +91,7 @@ class AIPlayer:
        #     if v <= alpha:
         #        return v
          #   beta = min(beta,v)
-      #  return v
+       # return v
 
     def get_expectimax_move(self, board):
         """
@@ -181,25 +205,15 @@ class AIPlayer:
         The utility value for the current board
         """
         boardCopy = board
- #       print("original boardCopy:")
-  #      print(boardCopy)
         utility_list =[]
         if(self.player_number == 2):
             rival = 1
         else:
             rival = 2
         for col in range(7):
-       # for row in range(5,0, -1):
-   #         print("col:{} ").format(col)
-        #    for col in range(6):
             for row in range(5,0,-1):
-    #            print("row: {} ").format(row)
-                #places an imaginary 1 or 2 wherever there is an open
-                #spot in the board
                 if boardCopy[row][col] == 0:
                     boardCopy[row][col] = self.player_number
-#                    print("boardCopy:")
-#                    print(boardCopy)
                     # self_count_values checks amount of values in a row for 
                     #the entire board
                     utility_num = self.count_values(board,4,self.player_number)*1000
@@ -211,13 +225,7 @@ class AIPlayer:
                     utility_list.append(utility_num)
                     #replaces value you checked back to a 0
                     boardCopy[row][col] = 0
-
-                 #   print(board)
                     break
-        print(self.player_number)
-        return(utility_list)
-
-
 class RandomPlayer:
     def __init__(self, player_number):
         self.player_number = player_number
