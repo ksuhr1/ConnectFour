@@ -14,8 +14,16 @@ class AIPlayer:
 
 
     def get_alpha_beta_move(self, board):
+                
 
-        get_utility = self.evaluation_function(board)
+      # print(self.validMoves(board))
+        
+        
+       get_utility = self.evaluation_function(board)
+       max_val = max(get_utility)
+       print(max_val)
+       max_index = get_utility.index(max_val)
+       print(max_index)
         #return maximum utility value
 #        maximum_val = max(get_utility)
 #        maximum_index = get_utility.index(maximum_val)
@@ -32,7 +40,7 @@ class AIPlayer:
 #        minimum_index = get_minutility.index(minimum_val)
 #        print("minimum_index:{}").format(minimum_index)
         
-        return (maximum_index)
+        return (max_index)
         
    # def minimax(board, depth):
     #    if depth == 0:
@@ -120,14 +128,6 @@ class AIPlayer:
     #count_values checks the amount of #4's #3's #2's in a row
     #for the entire board
     def count_values(self, board, num, player_num):
-        #a.astype gives array of strings
-      #  player_win_str = ''
-        #to_str = lambda a: ''.join(a.astype(str))
-
-        #for _ in range(num):
-         #   player_win_str+='{0}'
-          #  print(player_win_str)
-
         player_win_str = '{0}'*num
 
         player_win_str = player_win_str.format(player_num)
@@ -185,6 +185,16 @@ class AIPlayer:
          #       check_diagonal(board)): 
           #          print("it won")
     
+    def validMoves(self, board):
+        boardCopy = board
+        moves = []
+        for col in range(7):
+            for row in range(5,0,-1):
+                if boardCopy[row][col] == 0:
+                    moves.append([row,col])
+                    break
+        return moves
+
     def evaluation_function(self, board):
 
         """
@@ -203,29 +213,38 @@ class AIPlayer:
 
         RETURNS:
         The utility value for the current board
+
         """
-        boardCopy = board
-        utility_list =[]
+        boardCopy = board  
+        utility_list = []
         if(self.player_number == 2):
             rival = 1
         else:
             rival = 2
-        for col in range(7):
-            for row in range(5,0,-1):
-                if boardCopy[row][col] == 0:
-                    boardCopy[row][col] = self.player_number
-                    # self_count_values checks amount of values in a row for 
-                    #the entire board
-                    utility_num = self.count_values(board,4,self.player_number)*1000
-                    utility_num += self.count_values(board,3,self.player_number)*100
-                    utility_num += self.count_values(board,2,self.player_number)*10
 
-                    utility_num -=self.count_values(board,3, rival)*100
-                    utility_num -=self.count_values(board,2, rival)*10
-                    utility_list.append(utility_num)
-                    #replaces value you checked back to a 0
-                    boardCopy[row][col] = 0
-                    break
+
+      #  valid = self.validMoves(board)
+      #  print(valid)
+      #  for row, col in valid:
+      #      boardCopy[row][col] = self.player_number
+      #      print(boardCopy)
+            # self_count_values checks amount of values in a row for 
+            #the entire board
+            utility_num = self.count_values(board,4,self.player_number)*1000
+            utility_num += self.count_values(board,3,self.player_number)*100
+            utility_num += self.count_values(board,2,self.player_number)*10
+
+            utility_num -=self.count_values(board,3, rival)*100
+            utility_num -=self.count_values(board,2, rival)*10
+            utility_list.append(utility_num)
+            #replaces value you checked back to a 0
+     #       boardCopy[row][col] = 0
+     #       break
+        return(utility_list)
+
+
+
+
 class RandomPlayer:
     def __init__(self, player_number):
         self.player_number = player_number
@@ -287,11 +306,25 @@ class HumanPlayer:
         for i, col in enumerate(board.T):
             if 0 in col:
                 valid_cols.append(i)
-
+       # print (self.validMoves( board))
         move = int(input('Enter your move: '))
         while move not in valid_cols:
             print('Column full, choose from:{}'.format(valid_cols))
             move = int(input('Enter your move: '))
             
         return move
+
+    def validMoves(self, board):
+        boardCopy = board
+        moves = []
+      #  if(self.player_number == 2):
+        #    rival = 1
+       # else:
+        #    rival = 2
+        for col in range(7):
+            for row in range(5,0,-1):
+                if boardCopy[row][col] == 0:
+                    moves.append([row,col])
+                    break
+        return moves
 
