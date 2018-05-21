@@ -12,45 +12,87 @@ class AIPlayer:
       #      return(self.evaluation_function(board))
        # alpha = np.inf
 
-
+    #alpha: current best score on the path to the root by maximizer (us)
+    #beta: current best score on path to root by minimizer (opponent)
     def get_alpha_beta_move(self, board):
-        utility_list = []
-        v = self.max_value(board,-10000000, +10000000,3)
-        values.append(v)
-        ma
+     #   v= self.max_value(board,-10000000, +10000000,1)
+     #   return v
+        player = self.player_number
+        if(player == 1):
+            rival = 2
+        else:
+            rival = 1
+        v = self.search_board(board, -10000000, +10000000, 1, player, rival)
         return v
 
-    def max_value(self,board,alpha, beta, depth):
+    def search_board(self,board, alpha, beta, depth, player, rival):
+        print("Depth: {}").format(depth)
+        values = [];
+        v = -10000000
+        moves = self.validMoves(board)
+        print("valid moves: {}").format(moves)
+        print("pre value array:{}").format(values)
+        for row, col in moves:
+            #makes move in col for current player
+            board[row][col] = player
+            result = self.max_value(board, alpha, beta, depth-1, player, rival)
+            print("result:{}").format(result)
+            v = max(v, result)
+            print("v: {}").format(v)
+            board[row][col] = 0
+            values.append(v)
+            print("new value array:{}").format(values)
+       # print(values)
+        print("Player: {}").format(self.player_number)
+        maxval = max(values)
+        maxindex = values.index(maxval)
+        print(values)
+        print("search board")
+        print(maxindex)
+       # return value[0]
+        return maxindex
+      #  return [maxindex, maxval]
+
+    def max_value(self,board,alpha, beta, depth, player, rival):
         valid_moves = self.validMoves(board)
-        print("Max valid moves:")
-        print(valid_moves)
+        print("max_value valid moves: {}").format(valid_moves)
+        print(self.evaluation_function(board))
         if(depth == 0 or not valid_moves):
             return self.evaluation_function(board)
         v = -10000000
         for row, col in valid_moves:
-            board[row][col] = self.player_number
-            result = self.min_value(board,alpha,beta,depth-1)
+          #  print(self.player_number)
+            board[row][col] = player
+            print("Maxboard")
+            print(board)
+            result = self.min_value(board,alpha,beta,depth-1, player, rival)
             v = max(v, result)
             board[row][col] = 0
             if v >= beta:
                 return v
-            a = max(alpha, v)
+            alpha = max(alpha, v)
+        print("max v:{}").format(v)
         return v
-    def min_value(self,board,alpha,beta,depth):
+    def min_value(self,board,alpha,beta,depth, player, rival):
         valid_moves = self.validMoves(board)
-        print("Min valid moves:")
-        print(valid_moves)
+        print("min_value valid moves: {}").format(valid_moves)
+    #    print("Min valid moves:")
+    #    print(valid_moves)
+        print(self.evaluation_function(board))
         if(depth == 0 or not valid_moves):
             return self.evaluation_function(board)
         v = +10000000
         for row,col in valid_moves:
-            board[row][col] = self.player_number
-            result = self.max_value(board, alpha, beta, depth-1)
+            board[row][col] = player
+            print("Minboard")
+            print(board)
+            result = self.max_value(board, alpha, beta, depth-1, player, rival)
             v = min (v, result)
             board[row][col] = 0
             if v<= alpha:
                 return v
-            b = min(beta,v)
+            beta = min(beta,v)
+        print("min v:{}").format(v)
         return v
 
 
@@ -88,6 +130,7 @@ class AIPlayer:
         utility_num += self.count_values( board,3,self.player_number)*100
         utility_num += self.count_values( board,2,self.player_number)*10
 
+#        utility_num -= self.count_values( board, 4, rival)*600
         utility_num -= self.count_values( board,3, rival)*100
         utility_num -= self.count_values( board,2, rival)*10
         return (utility_num)
