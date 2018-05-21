@@ -22,7 +22,7 @@ class AIPlayer:
             rival = 2
         else:
             rival = 1
-        v = self.search_board(board, -10000000, +10000000, 1, player, rival)
+        v = self.search_board(board, -10000000, +10000000, 2, player, rival)
         return v
 
     def search_board(self,board, alpha, beta, depth, player, rival):
@@ -35,28 +35,29 @@ class AIPlayer:
         for row, col in moves:
             #makes move in col for current player
             board[row][col] = player
-            result = self.max_value(board, alpha, beta, depth-1, player, rival)
+            print("Search Board: ")
+            print(board)
+            result = self.min_value(board, alpha, beta, depth-1, player, rival)
             print("result:{}").format(result)
             v = max(v, result)
             print("v: {}").format(v)
+            print("After search board: ")
+            print(board)
             board[row][col] = 0
             values.append(v)
-            print("new value array:{}").format(values)
-       # print(values)
+            print("New Value array:{}").format(values)
         print("Player: {}").format(self.player_number)
         maxval = max(values)
         maxindex = values.index(maxval)
         print(values)
-        print("search board")
-        print(maxindex)
-       # return value[0]
+        print("Maxindex: {}").format(maxindex)
         return maxindex
       #  return [maxindex, maxval]
 
     def max_value(self,board,alpha, beta, depth, player, rival):
         valid_moves = self.validMoves(board)
-        print("max_value valid moves: {}").format(valid_moves)
-        print(self.evaluation_function(board))
+    #    print("max_value valid moves: {}").format(valid_moves)
+    #    print(self.evaluation_function(board))
         if(depth == 0 or not valid_moves):
             return self.evaluation_function(board)
         v = -10000000
@@ -69,9 +70,11 @@ class AIPlayer:
             v = max(v, result)
             board[row][col] = 0
             if v >= beta:
+                print("if v{} >= {}").format(v, alpha)
                 return v
             alpha = max(alpha, v)
-        print("max v:{}").format(v)
+            print("alpha = max({},{})").format(alpha,v)
+            print("Max alpha: {}, Max beta: {}, Max (v): {}").format(alpha,beta,v)
         return v
     def min_value(self,board,alpha,beta,depth, player, rival):
         valid_moves = self.validMoves(board)
@@ -83,16 +86,18 @@ class AIPlayer:
             return self.evaluation_function(board)
         v = +10000000
         for row,col in valid_moves:
-            board[row][col] = player
+            board[row][col] = rival
             print("Minboard")
             print(board)
             result = self.max_value(board, alpha, beta, depth-1, player, rival)
             v = min (v, result)
             board[row][col] = 0
             if v<= alpha:
+                print("if v{} <= {}").format(v, alpha)
                 return v
             beta = min(beta,v)
-        print("min v:{}").format(v)
+            print("alpha = min({},{})").format(alpha,v)
+            print("Min alpha: {}, Min beta: {}, Min (v): {}").format(alpha,beta,v)
         return v
 
 
