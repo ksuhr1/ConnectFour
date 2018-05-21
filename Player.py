@@ -22,7 +22,7 @@ class AIPlayer:
             rival = 2
         else:
             rival = 1
-        v = self.search_board(board, -10000000, +10000000, 2, player, rival)
+        v = self.search_board(board, -10000000, +10000000, 4, player, rival)
         return v
 
     def search_board(self,board, alpha, beta, depth, player, rival):
@@ -39,12 +39,12 @@ class AIPlayer:
             print(board)
             result = self.min_value(board, alpha, beta, depth-1, player, rival)
             print("result:{}").format(result)
-            v = max(v, result)
-            print("v: {}").format(v)
+            alpha = max(alpha, result)
+            print("v = max ({},{} = {})").format(alpha,result,alpha)
             print("After search board: ")
             print(board)
             board[row][col] = 0
-            values.append(v)
+            values.append(alpha)
             print("New Value array:{}").format(values)
         print("Player: {}").format(self.player_number)
         maxval = max(values)
@@ -56,9 +56,11 @@ class AIPlayer:
 
     def max_value(self,board,alpha, beta, depth, player, rival):
         valid_moves = self.validMoves(board)
-    #    print("max_value valid moves: {}").format(valid_moves)
+        print("max_value valid moves: {}").format(valid_moves)
+        print("Depth:{}").format(depth)
     #    print(self.evaluation_function(board))
         if(depth == 0 or not valid_moves):
+            print("Utility: {} ").format(self.evaluation_function(board) )   
             return self.evaluation_function(board)
         v = -10000000
         for row, col in valid_moves:
@@ -67,38 +69,46 @@ class AIPlayer:
             print("Maxboard")
             print(board)
             result = self.min_value(board,alpha,beta,depth-1, player, rival)
-            v = max(v, result)
+            alpha = max(alpha, result)
+            print("v = max ({},{}) = {}").format(v,result,v)
             board[row][col] = 0
-            if v >= beta:
-                print("if v{} >= {}").format(v, alpha)
-                return v
-            alpha = max(alpha, v)
+            print("before if: {} >= {}").format(v, beta)
+            if alpha >= beta:
+                print("if v{} >= {}").format(v, beta)
+                return alpha 
             print("alpha = max({},{})").format(alpha,v)
-            print("Max alpha: {}, Max beta: {}, Max (v): {}").format(alpha,beta,v)
-        return v
+            print("Max alpha: {}, Max beta: {}").format(alpha,beta)
+        return alpha
     def min_value(self,board,alpha,beta,depth, player, rival):
         valid_moves = self.validMoves(board)
+      #  moves = []
+      #  moves.append(valid_moves)
         print("min_value valid moves: {}").format(valid_moves)
-    #    print("Min valid moves:")
-    #    print(valid_moves)
-        print(self.evaluation_function(board))
+        print("Depth: {}").format(depth)
         if(depth == 0 or not valid_moves):
+            print("Utility: {} ").format(self.evaluation_function(board))
             return self.evaluation_function(board)
-        v = +10000000
+        v = 10000000
         for row,col in valid_moves:
             board[row][col] = rival
             print("Minboard")
             print(board)
             result = self.max_value(board, alpha, beta, depth-1, player, rival)
-            v = min (v, result)
+          #  v = min (v, result)
+            
+            beta = min(beta,result)
+            
+         #   print("beta = min({},{})").format(beta,result)
+         #   print("v = min ({},{}) = {}").format(beta,result)
             board[row][col] = 0
-            if v<= alpha:
-                print("if v{} <= {}").format(v, alpha)
-                return v
-            beta = min(beta,v)
-            print("alpha = min({},{})").format(alpha,v)
-            print("Min alpha: {}, Min beta: {}, Min (v): {}").format(alpha,beta,v)
-        return v
+        #    print("before if: {} <= {}").format(beta,alpha)
+            if beta<= alpha:
+                print("if v{} <= {}").format(beta, alpha)
+                return beta
+
+
+            print("Min alpha: {}, Min beta: {}").format(alpha,beta)
+        return beta
 
 
     def get_expectimax_move(self, board):
@@ -135,7 +145,7 @@ class AIPlayer:
         utility_num += self.count_values( board,3,self.player_number)*100
         utility_num += self.count_values( board,2,self.player_number)*10
 
-#        utility_num -= self.count_values( board, 4, rival)*600
+        utility_num -= self.count_values( board, 4, rival)*600
         utility_num -= self.count_values( board,3, rival)*100
         utility_num -= self.count_values( board,2, rival)*10
         return (utility_num)
