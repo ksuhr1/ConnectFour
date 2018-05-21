@@ -14,7 +14,44 @@ class AIPlayer:
 
 
     def get_alpha_beta_move(self, board):
-        return getMove(self,board)
+        utility_list = []
+        v = self.max_value(board,-10000000, +10000000,3)
+        values.append(v)
+        ma
+        return v
+
+    def max_value(self,board,alpha, beta, depth):
+        valid_moves = self.validMoves(board)
+        print("Max valid moves:")
+        print(valid_moves)
+        if(depth == 0 or not valid_moves):
+            return self.evaluation_function(board)
+        v = -10000000
+        for row, col in valid_moves:
+            board[row][col] = self.player_number
+            result = self.min_value(board,alpha,beta,depth-1)
+            v = max(v, result)
+            board[row][col] = 0
+            if v >= beta:
+                return v
+            a = max(alpha, v)
+        return v
+    def min_value(self,board,alpha,beta,depth):
+        valid_moves = self.validMoves(board)
+        print("Min valid moves:")
+        print(valid_moves)
+        if(depth == 0 or not valid_moves):
+            return self.evaluation_function(board)
+        v = +10000000
+        for row,col in valid_moves:
+            board[row][col] = self.player_number
+            result = self.max_value(board, alpha, beta, depth-1)
+            v = min (v, result)
+            board[row][col] = 0
+            if v<= alpha:
+                return v
+            b = min(beta,v)
+        return v
 
 
     def get_expectimax_move(self, board):
@@ -40,125 +77,129 @@ class AIPlayer:
         """
         raise NotImplementedError('Whoops I don\'t know what to do')
 
-#returns the utility
-def evaluation_function(self, board):
+    def evaluation_function(self, board):
+        utility_num = 0
+        if(self.player_number == 2):
+            rival = 1
+        else:
+            rival = 2
 
-    if(self.player_number == 2):
-        rival = 1
-    else:
-        rival = 2
+        utility_num = self.count_values( board,4,self.player_number)*1000
+        utility_num += self.count_values( board,3,self.player_number)*100
+        utility_num += self.count_values( board,2,self.player_number)*10
 
-    utility_num = count_values(self, board,4,self.player_number)*1000
-    utility_num +=count_values(self, board,3,self.player_number)*100
-    utility_num +=count_values(self, board,2,self.player_number)*10
+        utility_num -= self.count_values( board,3, rival)*100
+        utility_num -= self.count_values( board,2, rival)*10
+        return (utility_num)
 
-    utility_num -=count_values(self, board,3, rival)*100
-    utility_num -=count_values(self, board,2, rival)*10
-    return (utility_num)
+    def validMoves(self,board):
+        moves = []
+        for col in range(7):
+            for row in range(5,0,-1):
+                if board[row][col] == 0:
+                    moves.append([row,col])
+                    break
+        return moves
 
-#returns available positions
-def validMoves(board):
-    moves = []
-    for col in range(7):
-        for row in range(5,0,-1):
-            if board[row][col] == 0:
-                moves.append([row,col])
-                break
-    return moves
+    #count_values checks the amount of #4's #3's #2's in a row
+    #for the entire board
+    def count_values(self, board, num, player_num):
+        player_win_str = 0
+        player_win_str = '{0}'*num
 
-#count_values checks the amount of #4's #3's #2's in a row
-#for the entire board
-def count_values(self, board, num, player_num):
-    player_win_str = '{0}'*num
+        player_win_str = player_win_str.format(player_num)
+        to_str = lambda a: ''.join(a.astype(str))
 
-    player_win_str = player_win_str.format(player_num)
-    to_str = lambda a: ''.join(a.astype(str))
-    def check_horizontal(b):
-        value=0
-        for row in b:
-#                print(to_str(row))
-            if player_win_str in to_str(row):
-                value+=to_str(row).count(player_win_str)
-        return value
-        
-    def check_verticle(b):
-        return check_horizontal(b.T)
-         
-    def check_diagonal(b):
-        value = 0
-        for op in [None, np.fliplr]:
-            op_board = op(b) if op else b
+        def check_horizontal(b):
+            value=0
+            for row in b:
+    #                print(to_str(row))
+                if player_win_str in to_str(row):
+                    value+=to_str(row).count(player_win_str)
+                  #  print("You won")
+                  #  print("Number of two in a row: {} ").format(value)
+                  #print(to_str(row))
+            return value
+           # print("Number of twins in a row: {} ").format(value)
+            
+
+        def check_verticle(b):
+            return check_horizontal(b.T)
              
-            root_diag = np.diagonal(op_board, offset=0).astype(np.int)
-#                print("root_diag: {}").format(to_str(root_diag))
-            if player_win_str in to_str(root_diag):
-                value+=to_str(root_diag).count(player_win_str)
-         #   print("Diagnol-1 values: {}").format(value)
-         
-            for i in range(1, b.shape[1]-3):
-                for offset in [i, -i]:
-                    diag = np.diagonal(op_board, offset=offset)
-                    diag = to_str(diag.astype(np.int))
-#                        print("diag: {} ").format(diag)
-                    if player_win_str in diag:
-                       value+=diag.count(player_win_str)
-                    
-        return value
+        def check_diagonal(b):
+            value = 0
+            for op in [None, np.fliplr]:
+                op_board = op(b) if op else b
+                 
+                root_diag = np.diagonal(op_board, offset=0).astype(np.int)
+    #                print("root_diag: {}").format(to_str(root_diag))
+                if player_win_str in to_str(root_diag):
+                    value+=to_str(root_diag).count(player_win_str)
+             #   print("Diagnol-1 values: {}").format(value)
+             
+                for i in range(1, b.shape[1]-3):
+                    for offset in [i, -i]:
+                        diag = np.diagonal(op_board, offset=offset)
+                        diag = to_str(diag.astype(np.int))
+    #                        print("diag: {} ").format(diag)
+                        if player_win_str in diag:
+                           value+=diag.count(player_win_str)
+                        
+            return value
 
-    totalval = check_horizontal(board) + check_verticle(board) + check_diagonal(board)
-    return(totalval)
+        totalval = check_horizontal(board) + check_verticle(board) + check_diagonal(board)
+        return(totalval)
 
-def alpha_beta_prune(self, board, depth):
-
-    def ab(self, board, alpha, beta, depth):
-        values = [];
-        v = -1000000
-        for row, col in validMoves(board):
-            board[row][col] = 1
-            v = max(v, min_value(self, board, alpha, beta, depth-1))
-            values.append(v)
-            board[row][col] = 0
-        maxVal = max(values)
-        deepindex = values.index(maxVal)
-        return [deepindex, maxVal]
-
-
-
-    def max_value(self, board, alpha, beta, depth):
-        valid_moves = validMoves(board)
-        if(depth == 0 or not valid_moves):
-            #reutrns the heuresitc value
-            return evaluation_function(self, board)
-        v = -1000000
-        for row, col in valid_moves:
-            board[row][col] = 1
-            v = max(v, min_value(self, board, alpha, beta, depth-1))
-            board[row][col] = 0
-            if v >= beta:
-                return v
-            alpha = max(alpha,v)
-        return v
-
-    def min_value(self, board, alpha, beta, depth):
-        valid_moves = validMoves(board)
-        if(depth == 0 or not valid_moves):
-            return evaluation_function(self, board)
-        v = +1000000
-        for row, col in valid_moves:
-            board[row][col] = 2
-            v = min( v, max_value(self, board, alpha, beta, depth-1))
-            board[row][col] = 0
-
-            if v<= alpha:
-                return v
-            beta = min(beta,v)
-        return v
-    return ab(self, board, -100000, 100000, depth)
-
-def getMove(self,board):
-    depth = 3
-    value = alpha_beta_prune(self, board, depth)
-    return value[0]
+#def alpha_beta_prune(self, board, depth):
+#
+#    def ab(self, board, alpha, beta, depth):
+#        values = [];
+#        v = -1000000
+#        for row, col in validMoves(board):
+#            board[row][col] = 1
+#            v = max(v, min_value(self, board, alpha, beta, depth-1))
+#            values.append(v)
+#            board[row][col] = 0
+#        maxVal = max(values)
+#        deepindex = values.index(maxVal)
+#        return [deepindex, maxVal]
+#
+#
+#
+#    def max_value(self, board, alpha, beta, depth):
+#        valid_moves = validMoves(board)
+#        if(depth == 0 or not valid_moves):
+#            return evaluation_function(self, board)
+#        v = -1000000
+#        for row, col in valid_moves:
+#            board[row][col] = 1
+#            v = max(v, min_value(self, board, alpha, beta, depth-1))
+#            board[row][col] = 0
+#            if v >= beta:
+#                return v
+#            alpha = max(alpha,v)
+#        return v
+#
+#    def min_value(self, board, alpha, beta, depth):
+#        valid_moves = validMoves(board)
+#        if(depth == 0 or not valid_moves):
+#            return evaluation_function(self, board)
+#        v = +1000000
+#        for row, col in valid_moves:
+#            board[row][col] = 2
+#            v = min( v, max_value(self, board, alpha, beta, depth-1))
+#            board[row][col] = 0
+#
+#            if v<= alpha:
+#                return v
+#            beta = min(beta,v)
+#        return v
+#    return ab(self, board, -100000, 100000, depth)
+#
+#def getMove(self,board):
+#    depth = 3
+#    value = alpha_beta_prune(self, board, depth)
+#    return value[0]
    
 class RandomPlayer:
     def __init__(self, player_number):
