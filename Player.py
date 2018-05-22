@@ -1,4 +1,5 @@
 import numpy as np
+from operator import itemgetter
 
 class AIPlayer:
     def __init__(self, player_number):
@@ -7,107 +8,62 @@ class AIPlayer:
         self.player_string = 'Player {}:ai'.format(player_number)
 
 
-    #def minimax(self,board, depth):
-     #   if depth == 0:
-      #      return(self.evaluation_function(board))
-       # alpha = np.inf
-
     #alpha: current best score on the path to the root by maximizer (us)
     #beta: current best score on path to root by minimizer (opponent)
     def get_alpha_beta_move(self, board):
-     #   v= self.max_value(board,-10000000, +10000000,1)
-     #   return v
         player = self.player_number
         if(player == 1):
             rival = 2
         else:
             rival = 1
+
         v = self.search_board(board, -10000000, +10000000, 4, player, rival)
         return v
 
     def search_board(self,board, alpha, beta, depth, player, rival):
-#        print("Depth: {}").format(depth)
-        values = [];
-        v = -10000000
+        test = [];
         moves = self.validMoves(board)
-#        print("valid moves: {}").format(moves)
-#        print("pre value array:{}").format(values)
+        print("valid moves: {}").format(moves)
         for row, col in moves:
-            #makes move in col for current player
             board[row][col] = player
-#            print("Search Board: ")
-#            print(board)
             result = self.min_value(board, alpha, beta, depth-1, player, rival)
-#            print("result:{}").format(result)
             alpha = max(alpha, result)
-#            print("v = max ({},{} = {})").format(alpha,result,alpha)
-#            print("After search board: ")
-#            print(board)
             board[row][col] = 0
-            values.append(alpha)
-#            print("New Value array:{}").format(values)
-#        print("Player: {}").format(self.player_number)
-        maxval = max(values)
-        maxindex = values.index(maxval)
-#        print(values)
-#        print("Maxindex: {}").format(maxindex)
-        return maxindex
-      #  return [maxindex, maxval]
+            test.append((alpha, col))
+            print(test)
+        #take out max value with min index
+        maxtest = (max(test, key = itemgetter(1))[0])
+        for item in test:
+            if maxtest in item:
+                maxtest = item[1]
+                break
+        return(maxtest)
 
     def max_value(self,board,alpha, beta, depth, player, rival):
         valid_moves = self.validMoves(board)
-#        print("max_value valid moves: {}").format(valid_moves)
-#        print("Depth:{}").format(depth)
-#    #    print(self.evaluation_function(board))
         if(depth == 0 or not valid_moves):
-#            print("Utility: {} ").format(self.evaluation_function(board) )   
             return self.evaluation_function(board)
-        v = -10000000
+
         for row, col in valid_moves:
-#          #  print(self.player_number)
             board[row][col] = player
-#            print("Maxboard")
-#            print(board)
             result = self.min_value(board,alpha,beta,depth-1, player, rival)
             alpha = max(alpha, result)
-#            print("v = max ({},{}) = {}").format(v,result,v)
             board[row][col] = 0
-#            print("before if: {} >= {}").format(v, beta)
             if alpha >= beta:
-#                print("if v{} >= {}").format(v, beta)
                 return alpha 
-#            print("alpha = max({},{})").format(alpha,v)
-#            print("Max alpha: {}, Max beta: {}").format(alpha,beta)
         return alpha
+
     def min_value(self,board,alpha,beta,depth, player, rival):
         valid_moves = self.validMoves(board)
-      #  moves = []
-      #  moves.append(valid_moves)
-#        print("min_value valid moves: {}").format(valid_moves)
-#        print("Depth: {}").format(depth)
         if(depth == 0 or not valid_moves):
-#            print("Utility: {} ").format(self.evaluation_function(board))
             return self.evaluation_function(board)
-        v = 10000000
         for row,col in valid_moves:
-            board[row][col] = rival
-#            print("Minboard")
-#            print(board)
+            board[row][col] = rival       
             result = self.max_value(board, alpha, beta, depth-1, player, rival)
-          #  v = min (v, result)
-            
             beta = min(beta,result)
-            
-#         #   print("beta = min({},{})").format(beta,result)
-#         #   print("v = min ({},{}) = {}").format(beta,result)
             board[row][col] = 0
-#        #    print("before if: {} <= {}").format(beta,alpha)
             if beta<= alpha:
-#                print("if v{} <= {}").format(beta, alpha)
                 return beta
-
-
-#            print("Min alpha: {}, Min beta: {}").format(alpha,beta)
         return beta
 
 
@@ -145,7 +101,7 @@ class AIPlayer:
         utility_num += self.count_values( board,3,self.player_number)*100
         utility_num += self.count_values( board,2,self.player_number)*10
 
-        utility_num -= self.count_values( board, 4, rival)*600
+        utility_num -= self.count_values( board, 4, rival)*900
         utility_num -= self.count_values( board,3, rival)*100
         utility_num -= self.count_values( board,2, rival)*10
         return (utility_num)
@@ -153,7 +109,7 @@ class AIPlayer:
     def validMoves(self,board):
         moves = []
         for col in range(7):
-            for row in range(5,0,-1):
+            for row in range(5,-1,-1):
                 if board[row][col] == 0:
                     moves.append([row,col])
                     break
@@ -171,16 +127,9 @@ class AIPlayer:
         def check_horizontal(b):
             value=0
             for row in b:
-#    #                print(to_str(row))
                 if player_win_str in to_str(row):
                     value+=to_str(row).count(player_win_str)
-#                  #  print("You won")
-#                  #  print("Number of two in a row: {} ").format(value)
-#                  #print(to_str(row))
             return value
-#           # print("Number of twins in a row: {} ").format(value)
-            
-
         def check_verticle(b):
             return check_horizontal(b.T)
              
@@ -190,75 +139,19 @@ class AIPlayer:
                 op_board = op(b) if op else b
                  
                 root_diag = np.diagonal(op_board, offset=0).astype(np.int)
-#    #                print("root_diag: {}").format(to_str(root_diag))
                 if player_win_str in to_str(root_diag):
                     value+=to_str(root_diag).count(player_win_str)
-#             #   print("Diagnol-1 values: {}").format(value)
-             
                 for i in range(1, b.shape[1]-3):
                     for offset in [i, -i]:
                         diag = np.diagonal(op_board, offset=offset)
                         diag = to_str(diag.astype(np.int))
-#    #                        print("diag: {} ").format(diag)
                         if player_win_str in diag:
                            value+=diag.count(player_win_str)
-                        
             return value
 
         totalval = check_horizontal(board) + check_verticle(board) + check_diagonal(board)
         return(totalval)
 
-#def alpha_beta_prune(self, board, depth):
-#
-#    def ab(self, board, alpha, beta, depth):
-#        values = [];
-#        v = -1000000
-#        for row, col in validMoves(board):
-#            board[row][col] = 1
-#            v = max(v, min_value(self, board, alpha, beta, depth-1))
-#            values.append(v)
-#            board[row][col] = 0
-#        maxVal = max(values)
-#        deepindex = values.index(maxVal)
-#        return [deepindex, maxVal]
-#
-#
-#
-#    def max_value(self, board, alpha, beta, depth):
-#        valid_moves = validMoves(board)
-#        if(depth == 0 or not valid_moves):
-#            return evaluation_function(self, board)
-#        v = -1000000
-#        for row, col in valid_moves:
-#            board[row][col] = 1
-#            v = max(v, min_value(self, board, alpha, beta, depth-1))
-#            board[row][col] = 0
-#            if v >= beta:
-#                return v
-#            alpha = max(alpha,v)
-#        return v
-#
-#    def min_value(self, board, alpha, beta, depth):
-#        valid_moves = validMoves(board)
-#        if(depth == 0 or not valid_moves):
-#            return evaluation_function(self, board)
-#        v = +1000000
-#        for row, col in valid_moves:
-#            board[row][col] = 2
-#            v = min( v, max_value(self, board, alpha, beta, depth-1))
-#            board[row][col] = 0
-#
-#            if v<= alpha:
-#                return v
-#            beta = min(beta,v)
-#        return v
-#    return ab(self, board, -100000, 100000, depth)
-#
-#def getMove(self,board):
-#    depth = 3
-#    value = alpha_beta_prune(self, board, depth)
-#    return value[0]
-   
 class RandomPlayer:
     def __init__(self, player_number):
         self.player_number = player_number
@@ -323,7 +216,6 @@ class HumanPlayer:
 
         move = int(input('Enter your move: '))
         while move not in valid_cols:
-#            print('Column full, choose from:{}'.format(valid_cols))
             move = int(input('Enter your move: '))
             
         return move
