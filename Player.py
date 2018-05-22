@@ -8,7 +8,8 @@ class AIPlayer:
         self.player_string = 'Player {}:ai'.format(player_number)
 
 
-    #
+    """determines player and rival and passes alpha,beta,& depth
+       to search_board """
     def get_alpha_beta_move(self, board):
         player = self.player_number
         if(player == 1):
@@ -19,18 +20,24 @@ class AIPlayer:
         v = self.search_board(board, -10000000, +10000000, 4, player, rival)
         return v
 
+
+    """
+    this function iterates through all columns of the board 
+    and saves a list of tupples (max value, min indes)
+    which was returned from the min value function"""
     def search_board(self,board, alpha, beta, depth, player, rival):
         test = [];
         moves = self.validMoves(board)
-        print("valid moves: {}").format(moves)
+        # print("valid moves: {}").format(moves)
         for row, col in moves:
             board[row][col] = player
             result = self.min_value(board, alpha, beta, depth-1, player, rival)
             alpha = max(alpha, result)
             board[row][col] = 0
             test.append((alpha, col))
-            print(test)
-        #take out max value with min index
+            # print(test)
+
+        #takes out max value with min index
         maxtest = (max(test, key = itemgetter(1))[0])
         for item in test:
             if maxtest in item:
@@ -38,6 +45,11 @@ class AIPlayer:
                 break
         return(maxtest)
 
+    """
+    - returns the utility when at depth 0 or when not in a valid move
+    - iterates through the valid moves dropping a player in that 
+      position and recieves utility of that position
+    - sets position in board back to 0 and returns updated or correct alpha"""
     def max_value(self,board,alpha, beta, depth, player, rival):
         valid_moves = self.validMoves(board)
         if(depth == 0 or not valid_moves):
@@ -52,6 +64,8 @@ class AIPlayer:
                 return alpha 
         return alpha
 
+    """ 
+    - similar to max_value but returns beta"""
     def min_value(self,board,alpha,beta,depth, player, rival):
         valid_moves = self.validMoves(board)
         if(depth == 0 or not valid_moves):
@@ -65,7 +79,8 @@ class AIPlayer:
                 return beta
         return beta
 
-
+    """
+    - calls expectimax passing the board, depth, and player"""
     def get_expectimax_move(self, board):
         player = self.player_number
         if(player == 1):
@@ -75,19 +90,21 @@ class AIPlayer:
         v = self.expectimax(board, 4 , player, rival)
         return v
 
-
+    """
+    similar to search board function except gets utility
+    of expected value from exp_value function"""
     def expectimax(self, board,depth, player, rival):
         test = [];
         moves = self.validMoves(board)
         v = -10000000
-        print("valid moves: {}").format(moves)
+        # print("valid moves: {}").format(moves)
         for row, col in moves:
             board[row][col] = player
             result = self.exp_value(board, depth-1, player, rival)
             v = max(v, result)
             board[row][col] = 0
             test.append((v, col))
-            print(test)
+            #print(test)
         #take out max value with min index
         maxtest = (max(test, key = itemgetter(1))[0])
         for item in test:
@@ -96,7 +113,9 @@ class AIPlayer:
                 break
         return(maxtest)
 
-
+    """
+        similar to max_value function except gets 
+        utility from expected value function """
     def exp_max(self, board, depth, player, rival):
         valid_moves = self.validMoves(board)
         v = -10000000
@@ -109,6 +128,10 @@ class AIPlayer:
             board[row][col] = 0
         return v
 
+    """
+        -gets the number of valid moves = num chances
+        -returns expected value from recieving utility
+         from exp_max function and dividing by num_chances"""
     def exp_value(self, board, depth, player, rival):
         valid_moves = self.validMoves(board)
         if(depth == 0 or not valid_moves):
@@ -149,8 +172,8 @@ class AIPlayer:
                     break
         return moves
 
-    #count_values checks the amount of #4's #3's #2's in a row
-    #for the entire board
+    """count_values checks the amount of #4's #3's #2's in a row
+    for the entire board"""
     def count_values(self, board, num, player_num):
         player_win_str = 0
         player_win_str = '{0}'*num
