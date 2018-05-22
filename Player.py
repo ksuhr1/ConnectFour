@@ -8,8 +8,7 @@ class AIPlayer:
         self.player_string = 'Player {}:ai'.format(player_number)
 
 
-    #alpha: current best score on the path to the root by maximizer (us)
-    #beta: current best score on path to root by minimizer (opponent)
+    #
     def get_alpha_beta_move(self, board):
         player = self.player_number
         if(player == 1):
@@ -68,27 +67,62 @@ class AIPlayer:
 
 
     def get_expectimax_move(self, board):
-        """
-        Given the current state of the board, return the next move based on
-        the expectimax algorithm.
+        player = self.player_number
+        if(player == 1):
+            rival = 2
+        else:
+            rival = 1
+        v = self.expectimax(board, 4 , player, rival)
+        return v
 
-        This will play against the random player, who chooses any valid move
-        with equal probability
 
-        INPUTS:
-        board - a numpy array containing the state of the board using the
-                following encoding:
-                - the board maintains its same two dimensions
-                    - row 0 is the top of the board and so is
-                      the last row filled
-                - spaces that are unoccupied are marked as 0
-                - spaces that are occupied by player 1 have a 1 in them
-                - spaces that are occupied by player 2 have a 2 in them
+    def expectimax(self, board,depth, player, rival):
+        test = [];
+        moves = self.validMoves(board)
+        v = -10000000
+        print("valid moves: {}").format(moves)
+        for row, col in moves:
+            board[row][col] = player
+            result = self.exp_value(board, depth-1, player, rival)
+            v = max(v, result)
+            board[row][col] = 0
+            test.append((v, col))
+            print(test)
+        #take out max value with min index
+        maxtest = (max(test, key = itemgetter(1))[0])
+        for item in test:
+            if maxtest in item:
+                maxtest = item[1]
+                break
+        return(maxtest)
 
-        RETURNS:
-        The 0 based index of the column that represents the next move
-        """
-        raise NotImplementedError('Whoops I don\'t know what to do')
+
+    def exp_max(self, board, depth, player, rival):
+        valid_moves = self.validMoves(board)
+        v = -10000000
+        if(depth == 0 or not valid_moves):
+            return self.evaluation_function(board)
+        for row, col in valid_moves:
+            board[row][col] = player
+            result = self.exp_value(board, depth-1, player, rival)
+            v = max(v, result)
+            board[row][col] = 0
+        return v
+
+    def exp_value(self, board, depth, player, rival):
+        valid_moves = self.validMoves(board)
+        if(depth == 0 or not valid_moves):
+            return self.evaluation_function(board)
+        expectedVal = 0
+        num_chances = len(valid_moves)
+        print(num_chances)
+        for row,col in valid_moves:
+            board[row][col] = rival
+            p = self.exp_max(board, depth-1, player, rival)
+            expectedVal+= p
+            v = expectedVal/num_chances
+        return v 
+
 
     def evaluation_function(self, board):
         utility_num = 0
